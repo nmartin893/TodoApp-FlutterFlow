@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "tasks": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "details": { "type": "string" },
+          "user": { "type": "string" },
+          "completed": { "type": "boolean" },
+          "created": { "type": "string", "format": "date-time" }
+        },
+        "required": ["title", "user", "completed", "created"]
+      }
+    }
+  },
+  "required": ["tasks"]
+}
