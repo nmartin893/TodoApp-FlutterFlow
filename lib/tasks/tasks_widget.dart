@@ -1,15 +1,21 @@
 import '/auth/firebase_auth/auth_util.dart';
+import '/backend/api_requests/api_calls.dart';
 import '/backend/backend.dart';
 import '/components/add_task_widget.dart';
 import '/components/task_widget.dart';
 import '/flutter_flow/flutter_flow_theme.dart';
 import '/flutter_flow/flutter_flow_util.dart';
+import '/index.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'tasks_model.dart';
 export 'tasks_model.dart';
 
 class TasksWidget extends StatefulWidget {
   const TasksWidget({super.key});
+
+  static String routeName = 'tasks';
+  static String routePath = '/tasks';
 
   @override
   State<TasksWidget> createState() => _TasksWidgetState();
@@ -24,6 +30,21 @@ class _TasksWidgetState extends State<TasksWidget> {
   void initState() {
     super.initState();
     _model = createModel(context, () => TasksModel());
+
+    // On page load action.
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
+      _model.apiresponse = await GetRandomQuotesCall.call();
+
+      if ((_model.apiresponse?.succeeded ?? true)) {
+        _model.quote = GetRandomQuotesCall.quote(
+          (_model.apiresponse?.jsonBody ?? ''),
+        )!;
+        _model.author = GetRandomQuotesCall.author(
+          (_model.apiresponse?.jsonBody ?? ''),
+        )!;
+        safeSetState(() {});
+      }
+    });
 
     WidgetsBinding.instance.addPostFrameCallback((_) => safeSetState(() {}));
   }
@@ -59,7 +80,7 @@ class _TasksWidgetState extends State<TasksWidget> {
                   },
                   child: Padding(
                     padding: MediaQuery.viewInsetsOf(context),
-                    child: const AddTaskWidget(),
+                    child: AddTaskWidget(),
                   ),
                 );
               },
@@ -86,13 +107,13 @@ class _TasksWidgetState extends State<TasksWidget> {
           ),
         ),
         body: Padding(
-          padding: const EdgeInsetsDirectional.fromSTEB(0.0, 24.0, 0.0, 24.0),
+          padding: EdgeInsetsDirectional.fromSTEB(0.0, 24.0, 0.0, 24.0),
           child: Column(
             mainAxisSize: MainAxisSize.max,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsetsDirectional.fromSTEB(24.0, 0.0, 24.0, 0.0),
+                padding: EdgeInsetsDirectional.fromSTEB(24.0, 0.0, 24.0, 0.0),
                 child: Text(
                   'Tasks',
                   style: FlutterFlowTheme.of(context).headlineMedium.override(
@@ -135,7 +156,7 @@ class _TasksWidgetState extends State<TasksWidget> {
                       padding: EdgeInsets.zero,
                       scrollDirection: Axis.vertical,
                       itemCount: listViewTasksRecordList.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 12.0),
+                      separatorBuilder: (_, __) => SizedBox(height: 12.0),
                       itemBuilder: (context, listViewIndex) {
                         final listViewTasksRecord =
                             listViewTasksRecordList[listViewIndex];
@@ -146,7 +167,7 @@ class _TasksWidgetState extends State<TasksWidget> {
                           highlightColor: Colors.transparent,
                           onTap: () async {
                             context.pushNamed(
-                              'details',
+                              DetailsWidget.routeName,
                               queryParameters: {
                                 'taskDoc': serializeParam(
                                   listViewTasksRecord,
@@ -170,7 +191,27 @@ class _TasksWidgetState extends State<TasksWidget> {
                   },
                 ),
               ),
-            ].divide(const SizedBox(height: 12.0)),
+              Padding(
+                padding: EdgeInsets.all(14.0),
+                child: Text(
+                  _model.quote,
+                  style: FlutterFlowTheme.of(context).bodyMedium.override(
+                        fontFamily: 'Inter',
+                        letterSpacing: 0.0,
+                      ),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.all(12.0),
+                child: Text(
+                  _model.author,
+                  style: FlutterFlowTheme.of(context).bodyMedium.override(
+                        fontFamily: 'Inter',
+                        letterSpacing: 0.0,
+                      ),
+                ),
+              ),
+            ].divide(SizedBox(height: 12.0)),
           ),
         ),
       ),
